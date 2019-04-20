@@ -47,6 +47,10 @@ vector< Phrase >::const_iterator Histoire::end(void) const {
     return _phrases.end();
 }
 
+void Histoire::removeLast() {
+	_phrases.erase(_phrases.end()-1);
+}
+
 bool estCaracterePhrase( char c ) {
     return '.' != c;
 }

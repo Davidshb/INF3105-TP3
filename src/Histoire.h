@@ -32,6 +32,8 @@ public :
 
     void ajouterPhrase( Phrase a_phrase );
 
+    void removeLast();
+
     vector< Phrase >::const_iterator begin( void ) const;
     vector< Phrase >::const_iterator end( void ) const;
 

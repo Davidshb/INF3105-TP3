@@ -10,30 +10,40 @@
 
 
 #include <functional>
+#include <string>
 
 using namespace std;
-
 
 class Phrase {
 private :
 protected :
-    string _original;
-    string _ordonnee;
-    int _nMot;
+		int _nMot;
+		string _original;
+		string _ordonnee;
 public :
-    Phrase( void );
-    Phrase( string a_original );
-    Phrase( const Phrase & a_phrase );
-    virtual ~Phrase( void );
+		Phrase(void);
 
-    int nMot( void ) const;
-    int nLettre( void ) const;
+		Phrase(string a_original);
 
-    double rougeW_ord( const Phrase &, function< double( double ) > ) const;
-    double distance( const Phrase & ) const;
+		Phrase(const Phrase &a_phrase);
 
+		virtual ~Phrase(void);
 
-    friend ostream & operator << ( ostream & a_out, const Phrase & a_phrase );
+		int nMot(void) const;
+
+		int nLettre(void) const;
+
+		double rougeW_ord(const Phrase &, function<double(double)>) const;
+
+		double distance(const Phrase &) const;
+
+		bool operator<(const Phrase &) const;
+
+		bool operator!=(const Phrase&) const;
+
+		bool operator==(const Phrase&) const;
+
+		friend ostream &operator<<(ostream &a_out, const Phrase &a_phrase);
 };
 
 

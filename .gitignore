@@ -1,2 +1,6 @@
 .idea
 cmake-build-debug
+out
+.DS_Store
+tp3
+*.txt
