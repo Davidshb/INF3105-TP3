@@ -1,3 +1,8 @@
+/*
+ * Sehoubo David
+ * SEHK89100006
+ */
+
 #include "graphe.h"
 #include "DocumentXML.h"
 #include "Histoire.h"
@@ -82,7 +87,7 @@ int main(int argc, char *argv[]) {
 			if (it->distance(*it2) != 0.0)
 				graphe.ajouterAreteOrientee(*it, *it2);
 
-	graphe.dijkstra(*histoire->begin(), *(--histoire->end()));
+	graphe.dijkstra(*histoire->begin(), *(--histoire->end()), 5);
 
 	return EXIT_SUCCESS;
 }

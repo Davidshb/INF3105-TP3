@@ -18,9 +18,9 @@ class Phrase {
 private :
 protected :
 		int _nMot;
-		string _original;
 		string _ordonnee;
 public :
+		string _original;
 		Phrase(void);
 
 		Phrase(string a_original);

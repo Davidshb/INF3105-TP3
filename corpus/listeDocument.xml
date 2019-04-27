@@ -5,4 +5,5 @@
 	<document fichier="fevrier1930.xml"/>
 	<document fichier="mars1930.xml"/>
 	<document fichier="avril1930.xml"/>
+	<document fichier="test.xml"/>
 </liste>

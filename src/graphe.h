@@ -12,8 +12,6 @@
 #include <utility>
 #include <math.h>
 
-#define MIN_PATH_LENGTH 5
-
 using namespace std;
 
 // Le type S est le type utilisé pour identifier les sommets
@@ -24,10 +22,11 @@ public:
 
 		void ajouterAreteOrientee(const S &s1, const S &s2);
 
-		void dijkstra(S, S);
+		void dijkstra(S, S, int);
 
 private:
 		struct Sommet {
+				bool visite = false;
 				vector<S> voisins;// ensemble des sommets accessibles via les arêtes sortantes du sommet.
 				// Cela est légèrement différent de la page 120 des notes de cours.
 				// C'est voulu, car ici les arêtes ne sont pas étiquetées par un poids (ex: distance).
@@ -55,6 +54,9 @@ void Graphe<S>::ajouterAreteOrientee(const S &s1, const S &s2) {
 	sommets[s1].voisins.push_back(s2);
 }
 
+/*
+ * Cette méthode me permet de compter le nombre de noeuds parents depuis un noeud p
+ */
 template<class S>
 int Graphe<S>::countPath(const map<S, S> &m, S p) const {
 	int res = 1;
@@ -67,6 +69,10 @@ int Graphe<S>::countPath(const map<S, S> &m, S p) const {
 	return res;
 }
 
+/*
+ * Au lieu de d'utiliser l'operateur [], qui renvoie 0, cette méthode me renvoie l'infinie dans le cas où le noeud n'a
+ * pas été inséré dans la map. Au début de dijkstra les distances sont initialisées à l'infini
+ */
 template<class S>
 const double Graphe<S>::getDistance(const map<const S, double> &m, const S &key) {
 	auto it = m.find(key);
@@ -75,10 +81,14 @@ const double Graphe<S>::getDistance(const map<const S, double> &m, const S &key)
 	return it->second;
 }
 
+/* Cette méthode se charge de construire un chemin de la taille qui lui est donnée avec une modification de l'algo de
+ * dijkstra.
+ */
 template<class S>
-void Graphe<S>::dijkstra(S debut, const S fin) {
+void Graphe<S>::dijkstra(S debut, const S fin, int min_path_length) {
 	map<S, S> parents;
 	priority_queue<pair<double, S>, vector<pair<double, S>>, Graphe::comparator> file;
+	// Cette structure permet de garder la distance la plus courte toujours au top
 	map<const S, double> dist;
 	file.push(make_pair(0.0, debut));
 	dist[debut] = 0.0;
@@ -86,63 +96,78 @@ void Graphe<S>::dijkstra(S debut, const S fin) {
 	while (!file.empty()) {
 		const pair<double, S> p = file.top();
 		file.pop();
-		int c = countPath(parents, p.second);
+
+		if (p.second == fin) break;
+
+		int c_p = countPath(parents, p.second);
 		double u = getDistance(dist, p.second);
+
 		//cout << file.size() << endl;
 
-		if (u == INFINITY) { //ne devrait normalement jamais arrivé
+		//ne devrait normalement jamais arrivé
+		if (u == INFINITY) {
 			cerr << "distance infinie" << endl;
-			break;
+			exit(-1);
 		}
 
 		Sommet &s = sommets.find(p.second)->second;
-		map<const S, double> dist2;
+
+		if (s.visite) continue;
+		s.visite = true;
 
 		for (S it : s.voisins) {
 			double _cout = it.distance(p.second);
-			if (_cout == 0.0) continue;
-
-			int c_ = countPath(parents, it);
+			int c_it = countPath(parents, it);
 			double d = u + _cout;
-			//double Dw = getDistance(dist, it);
-
-			if (c_ < c && ((it != fin && c < MIN_PATH_LENGTH - 1 && d < getDistance(dist, it)) ||
-			               (it == fin && c >= MIN_PATH_LENGTH - 1 && d < getDistance(dist, it)))) {
+			if (it != fin && c_it == c_p && c_p < min_path_length - 1) {
+				Sommet &tmp = sommets[it];
+				if (!tmp.visite) {
+					parents[it] = p.second;
+					dist[it] = d;
+					file.push(make_pair(d, it));
+				}
+			} else if (it == fin && d < getDistance(dist, it) && c_p == min_path_length - 1) {
 				parents[it] = p.second;
-				dist[it] = d;
-				file.push(make_pair(d, it));
-			} else if ((it != fin && c < MIN_PATH_LENGTH - 1 && _cout < getDistance(dist2, it)) ||
-			           (it == fin && c >= MIN_PATH_LENGTH - 1 && _cout < getDistance(dist2, it))) {
-				parents[it] = p.second;
-				dist2[it] = _cout;
 				dist[it] = d;
 				file.push(make_pair(d, it));
 			}
 		}
+		/*
+		if (c_it <= c_p && d < Dw &&
+				((it != fin && c_p < min_path_length - 1) || (it == fin && c_p >= min_path_length - 1))) {
+			parents[it] = p.second;
+			dist[it] = d;
+			file.push(make_pair(d, it));
+		} else if (it != fin && c_it == 1) {
+			parents[it] = p.second;
+			dist[it] = d;
+			file.push(make_pair(d, it));
+		}
+	}*/
 	}
 
-	S *tmp = &fin;
+	S tmp = fin;
 	typename map<S, S>::iterator it;
 	vector<S> res;
+	//double r = 0;
 
 	do {
-		res.
-						push_back(*tmp);
-		cout << *tmp <<
-		     endl;
-		it = parents.find(*tmp);
-		tmp = &it->second;
-	} while (it != parents.
+		res.push_back(tmp);
+		it = parents.find(tmp);
+		if (it == parents.end()) break;
+		//cout << *tmp << endl;
+		//double t = tmp.distance(it->second);
+		//cout << t << endl;
+		//r += t;
+		tmp = it->second;
+	} while (it != parents.end());
 
-					end()
+	//cout << "taille: " << res.size() << endl;
+	//cout << r << endl;
+	//cout << "distance totale: " << dist[fin] << endl;
 
-					);
-
-	for (
-		S &s
-					: res)
-		cout << s <<
-		     endl;
+	for (auto it2 = res.rbegin(); it2 != res.rend(); it2++)
+		cout << *it2 << endl;
 }
 
 #endif
